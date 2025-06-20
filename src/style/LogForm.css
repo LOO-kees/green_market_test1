@@ -32,7 +32,8 @@
 }
 
 .logform #logform_userid, .logform #logform_password,
-.logform #logform_username, .logform #logform_password_conf, .logform #logform_phone, .logform #logform_email, .logform {
+.logform #logform_username, .logform #logform_password_conf, .logform #logform_phone, .logform #logform_email, 
+.logform #logform_init_region, .logform #logform_town, .logform #logform_locate {
   border-bottom: 3px solid #ccc;
   box-sizing: border-box;
   margin-top: 8px;
@@ -111,7 +112,7 @@
 
 /* 실패 메시지 */
 .logform .logform_error {
-  color: rgb(187, 7, 7);
+  color: rgb(172, 8, 8);
 }
 
 /* 회원가입 페이지 추가 내용 */
@@ -120,18 +121,19 @@
   text-align: right;
   margin: 0;
   font-size: var(--s_font); /* 14px */
-  color: rgb(172, 8, 8);;
+  color: rgb(172, 8, 8);
 }
 
 .logform label {
   display: block;
   width: 100%;
+  font-weight: 600;
 }
 .logform select:focus {
   border: 1px solid var(--s_color_bk);
 }
 
-.logform #logform_region {
+.logform #logform_region, .logform #logform_city {
   margin-top: 8px;
   width: 100%;
   padding: 5px 7px;
@@ -159,6 +161,9 @@
   width: inherit;
   margin-right: 8px;
 } /* 체크박스 */
+.logform_chbox_wrap label {
+  display: inline;
+}
 .logform_chbox_wrap span {
   cursor: pointer;
 }
@@ -176,6 +181,23 @@
 }
 
 /* 회원정보 수정 */
+/* 지역 수정 - 수정 전 입력된 지역 */
+.logform .logform_initial_region {
+  margin: 0;
+}
+.logform .logform_initial_region + p { /* 다음 형제 요소만 선택 */
+  margin-top: 15px;
+}
+
+/* 지역 수정 */
+.logform #logform_town, .logform #logform_locate, .logform #logform_init_region {
+  border-bottom: none;
+  border: 1px solid #ccc;
+}
+.logform #logform_init_region {
+  background: #ccc;
+}
+
 /* 수정하기 버튼 */
 .logform .logform_update {
   margin-bottom: 16px; /* 소셜 로그인 동일 */
@@ -190,6 +212,8 @@
   padding: 10px 6px; /* 수정버튼과 동일 크기 */
   border: none;
   background: transparent;
+  cursor: pointer;
+  width: 100%;
 }
 .logform .logform_cancel:hover {
   background: #cecece;

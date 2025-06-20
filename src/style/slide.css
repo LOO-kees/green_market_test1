@@ -69,3 +69,53 @@
 .swiper-pagination-bullet-active {
   background: #000;
 }
+
+
+
+/* 태블릿과 모바일에 공통 적용 */
+@media screen and (max-width: 1024px) {
+
+}
+  
+
+/* 태블릿 전용 */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+
+  .slide_wrap {
+    /* 부모가 이제 화면 가득이니 100% 만 줘도 꽉 찹니다 */
+    width: 100% !important; 
+    /* 이전 트릭 제거 */
+    position: relative;
+    left: auto;
+    transform: none;
+    padding: 0;
+    max-width: none;
+  }
+
+  .slide_caption {
+  font-size: 1.5rem;
+  padding: 1rem 2em;   
+}
+
+.slide_wrap .swiper-button-prev,
+.slide_wrap .swiper-button-next {
+  width: calc(var(--swiper-navigation-size) / 4 * 30);
+}
+
+}
+
+/* 모바일 전용 */
+@media screen and (max-width: 767px) {
+
+
+  .slide_caption {
+  font-size: 0.9rem;
+  padding: 1rem 2em;                 /* 좌우 여백 */
+}
+
+.slide_wrap .swiper-button-prev,
+.slide_wrap .swiper-button-next {
+  --swiper-navigation-size: 16px;  /* 원하는 크기로 설정 */
+  width: calc(var(--swiper-navigation-size) / 4 * 30);
+}
+}
