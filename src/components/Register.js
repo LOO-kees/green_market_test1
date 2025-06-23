@@ -57,7 +57,7 @@ function Register(props) {
       }
 
       // 전송
-      await axios.post('http://localhost:9070/api/register', {
+      await axios.post('https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/green-market-test1/register', {
         username: form.username,
         userid: form.userid,
         password: form.password,
