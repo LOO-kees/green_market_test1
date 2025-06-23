@@ -57,7 +57,7 @@ function Register(props) {
       }
 
       // 전송
-      await axios.post('http://localhost:9070/register', {
+      await axios.post('http://localhost:9070/api/register', {
         username: form.username,
         userid: form.userid,
         password: form.password,
