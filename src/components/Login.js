@@ -24,7 +24,7 @@ function Login(props) {
 
     // 성공시
     try {
-      const res = await axios.post('http://localhost:9070/api/login', form);
+      const res = await axios.post('https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/green-market-test1/login', form);
     
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('username', res.data.user.username);
