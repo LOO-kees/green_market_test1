@@ -79,11 +79,17 @@ function Notice() {
                 {isAdmin && (
                   <td>
                     <button
+                      className='notice_upd_btn'
                       onClick={() => navigate(`/notice/update/${item.id}`)}
                     >
                       수정
                     </button>
-                    <button onClick={() => delData(item.id)}>삭제</button>
+                    <button
+                      className='notice_del_btn'
+                      onClick={() => delData(item.id)}
+                    >
+                      삭제
+                    </button>
                   </td>
                 )}
               </tr>
