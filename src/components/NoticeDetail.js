@@ -61,10 +61,18 @@ function NoticeDetail() {
         <h3 className='support_none'>공지사항 세부 내용</h3>
         {isAdmin && (
           <div className='notice_hidden_top'>
-            <button onClick={() => navigate(`/notice/update/${id}`)}>
+            <button
+              className='notice_upd_btn'
+              onClick={() => navigate(`/notice/update/${id}`)}
+            >
               수정
             </button>
-            <button onClick={delData}>삭제</button>
+            <button
+              className='notice_del_btn'
+              onClick={delData}
+            >
+              삭제
+            </button>
           </div>
         )}
         <div className='notice_top'>
