@@ -18,8 +18,7 @@ function GoodsInsert() {
     }
   }, [navigate]);
 
-
-  //폼 상태 관리
+  // 폼 상태 관리
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -130,12 +129,16 @@ function GoodsInsert() {
     });
   
     try {
-      const res = await axios.post('http://localhost:9070/products', fd, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,  // 여기 토큰을 꼭 넣어주세요
-        },
-      });
+      const res = await axios.post(
+        'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products',
+        fd,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,  // 여기 토큰을 꼭 넣어주세요
+          },
+        }
+      );
       if (res.data.success) {
         alert('등록이 완료되었습니다.');
         navigate('/productpage');
@@ -370,12 +373,6 @@ function GoodsInsert() {
             value={formData.description}
             onChange={handleChange}
           />
-        </p>
-
-        {/* 첨부파일(기존 그대로) */}
-        <p>
-          <label htmlFor="file">첨부파일</label>
-          <input type="file" id="file" name="file" />
         </p>
 
         {/* 버튼 */}
