@@ -28,7 +28,7 @@ function GoodsInsert() {
     condition: '',
     region: '',
     description: '',
-    shipping_fee: ''  // 추가
+    shipping_fee: ''
   });
 
   // DataURL 미리보기
@@ -91,7 +91,8 @@ function GoodsInsert() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { title, category, brand, price, tradeType, condition, region, description, shipping_fee } = formData;
-  
+
+    // 유효성 검사
     if (!title || !category || !brand || !price || !tradeType || !condition || !region || !description || !shipping_fee) {
       alert('모든 항목을 입력해주세요.');
       return;
@@ -104,30 +105,32 @@ function GoodsInsert() {
       alert('배송비는 숫자로 입력해주세요.');
       return;
     }
-  
-    const token = localStorage.getItem('token');  // 로그인 때 저장한 토큰을 꺼냄
+
+    const token = localStorage.getItem('token');
     if (!token) {
       alert('로그인이 필요합니다.');
-      navigate('/login');  // 로그인 페이지로 이동시키기
+      navigate('/login');
       return;
     }
-  
+
+    // FormData 셋업
     const fd = new FormData();
     fd.append('title', title);
     fd.append('brand', brand);
-    fd.append('kind', category);         
+    fd.append('kind', category);
     fd.append('price', price);
-    fd.append('tradeType', tradeType);
+    // ← 이 부분만 변경되었습니다:
+    fd.append('trade_type', tradeType);
     fd.append('condition', condition);
     fd.append('region', region);
     fd.append('description', description);
     fd.append('shipping_fee', shipping_fee);
-  
+
     Object.entries(imageFiles).forEach(([idx, file]) => {
       const field = idx === '0' ? 'image_main' : `image_${idx}`;
       fd.append(field, file);
     });
-  
+
     try {
       const res = await axios.post(
         'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products',
@@ -135,7 +138,7 @@ function GoodsInsert() {
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,  // 여기 토큰을 꼭 넣어주세요
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -219,7 +222,7 @@ function GoodsInsert() {
           </select>
         </p>
 
-        {/* 사진 */}
+        {/* 사진 업로드 */}
         <label htmlFor="image">사진</label>
         <div className="photo-section">
           {/* 메인 사진 */}
@@ -288,7 +291,7 @@ function GoodsInsert() {
           </div>
         </div>
 
-        {/* 가격 */}
+        {/* 가격 입력 */}
         <p>
           <label htmlFor="price">가격</label>
           <input
@@ -349,6 +352,7 @@ function GoodsInsert() {
           />
         </p>
 
+        {/* 배송비 */}
         <p>
           <label htmlFor="shipping_fee">배송비</label>
           <input
@@ -375,7 +379,7 @@ function GoodsInsert() {
           />
         </p>
 
-        {/* 버튼 */}
+        {/* 버튼 그룹 */}
         <div className="button-group">
           <button type="submit" className="submit-btn">등록하기</button>
           <button type="button" className="cancel-btn" onClick={handleCancel}>취소</button>
