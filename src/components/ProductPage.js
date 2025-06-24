@@ -56,7 +56,7 @@ function ProductPage() {
 
   /* ── 컴포넌트 마운트 시 DB 에서 상품 불러오기 ── */
   useEffect(() => {
-    axios.get('http://localhost:9070/products')
+    axios.get('https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products')
       .then(res => {
         const items = res.data.map(p => ({
           id:        p.id,
@@ -260,7 +260,7 @@ function ProductPage() {
             <ItemCard2
               key={it.id}
               id={it.id}
-              imgSrc={`http://localhost:9070/uploads/${it.image}`}
+              imgSrc={`https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/uploads/${it.image}`}
               brand={it.brand}
               name={it.name}
               price={`${it.price.toLocaleString()}원`}
