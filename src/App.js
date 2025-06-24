@@ -30,33 +30,33 @@ function App() {
       <Header />
 
       {/* 페이지 컨텐츠 영역 */}
+      <Routes>
+        <Route path="/" element={<Main />} />
 
-        <Routes>
-          <Route path="/" element={<Main />} />
-          {/* 로그인/회원가입/카트 */}
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-          <Route path="/cart" element={<Cart />} />
-          {/* 제품 관련 */}
-          <Route path="/productpage" element={<ProductPage />} />
-          <Route path="/itemdetail" element={<ItemDetail />} />
-          <Route path="/goodsinsert" element={<GoodsInsert />} />
-          <Route path="/products/:id" element={<ItemDetail />} />
+        {/* 로그인/회원가입/카트 */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/cart" element={<Cart />} />
 
-          {/* 고객센터 */}
-          <Route path="/notice" element={<Notice />} />
-          <Route path="/notice/create" element={<NoticeCreate />} />
-          <Route path="/notice/update/:id" element={<NoticeUpdate />} />
-          <Route path="/notice/:id" element={<NoticeDetail />} />
-          <Route path="/inquiry" element={<InquiryForm />} />
-          <Route path="/qna" element={<Qna />} />
+        {/* 제품 관련 */}
+        <Route path="/productpage" element={<ProductPage />} />
+-       <Route path="/itemdetail" element={<ItemDetail />} />
+        <Route path="/goodsinsert" element={<GoodsInsert />} />
+        <Route path="/products/:id" element={<ItemDetail />} />
 
-          {/* 회원정보 수정 */}
-          <Route path="/member/update/:id" element={<MemberUpdate />} />
+        {/* 고객센터 */}
+        <Route path="/notice" element={<Notice />} />
+        <Route path="/notice/create" element={<NoticeCreate />} />
+        <Route path="/notice/update/:id" element={<NoticeUpdate />} />
+        <Route path="/notice/:id" element={<NoticeDetail />} />
+        <Route path="/inquiry" element={<InquiryForm />} />
+        <Route path="/qna" element={<Qna />} />
 
-          {/* <Route path="/other" element={<OtherPage />} /> */}
-        </Routes>
+        {/* 회원정보 수정 */}
+        <Route path="/member/update/:id" element={<MemberUpdate />} />
 
+        {/* <Route path="/other" element={<OtherPage />} /> */}
+      </Routes>
 
       <Footer />
     </BrowserRouter>
