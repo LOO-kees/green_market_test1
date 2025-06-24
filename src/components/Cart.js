@@ -22,7 +22,12 @@ function Cart({ token }) {
           { headers: { Authorization: `Bearer ${actualToken}` } }
         );
 
-        const cartWithChecked = res.data.map(item => ({ ...item, checked: false }));
+        // ★ 여기서 item.id 를 item.cart_id 로 복제해 줍니다.
+        const cartWithChecked = res.data.map(item => ({
+          ...item,
+          cart_id: item.id,      // 서버가 내려준 id를 cart_id 필드에 복사
+          checked: false
+        }));
         setProductData(cartWithChecked);
       } catch (err) {
         console.error('장바구니 데이터를 불러오는데 실패했습니다.', err);
@@ -35,7 +40,9 @@ function Cart({ token }) {
   const handleCheck = id => {
     setProductData(prev =>
       prev.map(product =>
-        product.cart_id === id ? { ...product, checked: !product.checked } : product
+        product.cart_id === id
+          ? { ...product, checked: !product.checked }
+          : product
       )
     );
   };
@@ -43,7 +50,9 @@ function Cart({ token }) {
   const actualToken = token || localStorage.getItem('token');
 
   const handleDeleteSelected = async () => {
-    const selectedIds = productData.filter(p => p.checked).map(p => p.cart_id);
+    const selectedIds = productData
+      .filter(p => p.checked)
+      .map(p => p.cart_id);
     if (!selectedIds.length) return;
 
     try {
@@ -54,7 +63,8 @@ function Cart({ token }) {
           headers: { Authorization: `Bearer ${actualToken}` }
         }
       );
-      setProductData(prev => prev.filter(p => !p.checked));
+      // 실제로 지워진 ID만 빼고 화면 업데이트
+      setProductData(prev => prev.filter(p => !selectedIds.includes(p.cart_id)));
     } catch (err) {
       console.error('선택 삭제 실패', err);
     }
@@ -93,6 +103,7 @@ function Cart({ token }) {
     }
   };
 
+  // (이하 렌더링 부분은 변경 없습니다)
   const selectedProducts = productData.filter(p => p.checked);
   const itemsTotal = selectedProducts.reduce(
     (sum, p) => sum + p.price * (p.quantity || 1),
