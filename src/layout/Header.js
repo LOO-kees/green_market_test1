@@ -1,3 +1,4 @@
+// src/components/Header.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../style/common.css';
@@ -58,12 +59,17 @@ function Header() {
 
         {/* 모바일 검색 + 햄버거 */}
         <div className='mobile_menu_wrap'>
-          <form onSubmit={e => {
-            e.preventDefault();
-            const kw = e.target.keyword.value.trim();
-            if (kw) navigate(`/productpage?keyword=${encodeURIComponent(kw)}`);
-          }}>
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="header_search-icon_mb" />
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              const kw = e.target.keyword.value.trim();
+              if (kw) navigate(`/productpage?keyword=${encodeURIComponent(kw)}`);
+            }}
+          >
+            {/* 아이콘을 버튼으로 감싸 클릭해도 submit */}
+            <button type="submit" className="header_search-icon_mb">
+              <FontAwesomeIcon icon={faMagnifyingGlass} />
+            </button>
             <input name="keyword" type="text" placeholder="검색어" />
           </form>
           <button
@@ -77,12 +83,17 @@ function Header() {
 
         {/* PC 검색 */}
         <div className='header_search_wrap'>
-          <form onSubmit={e => {
-            e.preventDefault();
-            const kw = e.target.keyword.value.trim();
-            if (kw) navigate(`/productpage?keyword=${encodeURIComponent(kw)}`);
-          }}>
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="header_search-icon" />
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              const kw = e.target.keyword.value.trim();
+              if (kw) navigate(`/productpage?keyword=${encodeURIComponent(kw)}`);
+            }}
+          >
+            {/* submit 버튼으로 변경 */}
+            <button type="submit" className="header_search-icon">
+              <FontAwesomeIcon icon={faMagnifyingGlass} />
+            </button>
             <input
               name="keyword"
               type='text'
