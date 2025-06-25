@@ -107,16 +107,25 @@ function ProductPage() {
 
   /* ── 필터 & 검색 적용 ── */
   const filtered = useMemo(() => {
-    return productItems.filter(it => {
-      if (categories.length && !categories.includes(it.category)) return false;
-      if (brands.length     && !brands.includes(it.brand))       return false;
-      if (conditions.length && !conditions.includes(it.condition)) return false;
-      if (states.length     && !states.includes(it.state))       return false;
-      if (priceMin && it.price < +priceMin) return false;
-      if (priceMax && it.price > +priceMax) return false;
-      if (searchTerm && !it.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-      return true;
-    });
+   return productItems.filter(it => {
+     if (categories.length && !categories.includes(it.category)) return false;
+     if (brands.length     && !brands.includes(it.brand))       return false;
+     if (conditions.length && !conditions.includes(it.condition)) return false;
+     if (states.length     && !states.includes(it.state))       return false;
+     if (priceMin && it.price < +priceMin) return false;
+     if (priceMax && it.price > +priceMax) return false;
+
+     // ★ 여기부터 검색어 체크: title(name), brand, category 모두 검사
+     if (searchTerm) {
+       const kw = searchTerm.toLowerCase();
+       const inName = it.name.toLowerCase().includes(kw);
+       const inBrand = it.brand?.toLowerCase().includes(kw);
+       const inKind = it.category?.toLowerCase().includes(kw);
+       if (! (inName || inBrand || inKind) ) return false;
+     }
+
+     return true;
+   });
   }, [productItems, categories, brands, conditions, states, priceMin, priceMax, searchTerm]);
 
   return (
