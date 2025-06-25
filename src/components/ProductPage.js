@@ -1,7 +1,7 @@
-// components/ProductPage.js
+// src/components/ProductPage.js
 import React, { useState, useMemo, useEffect } from 'react';
-// import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp, faSearch } from '@fortawesome/free-solid-svg-icons';
 import '../style/productpage.css';
@@ -15,13 +15,18 @@ const CATEGORY = [
 ];
 const BRAND = [
   'NoBrand', '나이키', '아디다스', '자라', '유니클로',
-  '폴로 랄프 로렌', '타미힐피거', '리바이스', '타미힐피거',
-  '리바이스', '삼성', '애플', '다이소',
+  '폴로 랄프 로렌', '타미힐피거', '리바이스', '삼성', '애플', '다이소',
 ];
-const CONDITION = ['새상품(미개봉)', '거의 새상품(상)', '사용감 있는 깨끗한 상품(중)', '사용 흔적이 많이 있는 상품(하)'];
+const CONDITION = [
+  '새상품(미개봉)', '거의 새상품(상)',
+  '사용감 있는 깨끗한 상품(중)', '사용 흔적이 많이 있는 상품(하)'
+];
 const SALESTATE = ['판매중', '판매완료'];
 
 function ProductPage() {
+  const navigate = useNavigate();
+  const { search } = useLocation();
+
   /* ── 기존 상태 (필터/검색) ── */
   const [openKey, setOpenKey]       = useState(null);
   const [categories, setCategories] = useState([]);
@@ -38,33 +43,33 @@ function ProductPage() {
   const [tempPriceMax, setTempPriceMax] = useState('');
 
   /* ── DB 연동 상태 ── */
-  const [productItems, setProductItems] = useState([]);  // API 로 받은 상품 리스트
+  const [productItems, setProductItems] = useState([]);
 
   /* ── 배열 토글 헬퍼 ── */
   const toggleArray = (v, setter) =>
     setter(prev => prev.includes(v) ? prev.filter(i => i !== v) : [...prev, v]);
 
-  /* ── 검색 입력 핸들러 ── */
-  const handleSearchChange = e => {
-    const v = e.target.value;
-    setSearchInput(v);
-    if (v.trim() === '') setSearchTerm('');
-  };
-  const handleSearchKey = e => {
-    if (e.key === 'Enter') setSearchTerm(searchInput.trim());
-  };
+  /* ── URL 파라미터(keyword) 처리 ── */
+  useEffect(() => {
+    const qp = new URLSearchParams(search);
+    const kw = qp.get('keyword') || '';
+    if (kw) {
+      setSearchInput(kw);
+      setSearchTerm(kw);
+    }
+  }, [search]);
 
-  /* ── 컴포넌트 마운트 시 DB 에서 상품 불러오기 ── */
+  /* ── 컴포넌트 마운트 시 DB에서 상품 불러오기 ── */
   useEffect(() => {
     axios.get('https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products')
       .then(res => {
         const items = res.data.map(p => ({
           id:        p.id,
-          image:     p.images[0] ? p.images[0] : '',           // 첫 번째 이미지 파일명
+          image:     p.images[0] ? p.images[0] : '',
           brand:     p.brand,
           name:      p.title,
           price:     p.price,
-          time: new Date(p.datetime).toLocaleString(),   // 등록일시
+          time:      new Date(p.datetime).toLocaleString(),
           category:  p.kind,
           condition: p.condition,
           state:     p.status === 'available' ? '판매완료' : '판매중',
@@ -73,6 +78,26 @@ function ProductPage() {
       })
       .catch(console.error);
   }, []);
+
+  /* ── 검색창 입력 핸들러 ── */
+  const handleSearchChange = e => {
+    const v = e.target.value;
+    setSearchInput(v);
+    if (v.trim() === '') {
+      setSearchTerm('');
+      navigate('/productpage');
+    }
+  };
+
+  const handleSearchKey = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const v = e.target.value.trim();
+      setSearchInput(v);
+      setSearchTerm(v);
+      navigate(v ? `/productpage?keyword=${encodeURIComponent(v)}` : '/productpage');
+    }
+  };
 
   /* ── 필터 & 검색 적용 ── */
   const filtered = useMemo(() => {
