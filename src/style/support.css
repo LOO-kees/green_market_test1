@@ -78,13 +78,6 @@
     width: auto;
   }
 
-  /* 고객센터 페이지 본문 */
-  .support_section {
-    display: block;
-    width: 98%;
-    margin: 0 1%;
-  }
-
   /* 공지사항 페이지 */
   .support_section > .support_page {
     width: 100%;
