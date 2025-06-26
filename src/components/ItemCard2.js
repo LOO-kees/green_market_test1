@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../style/itemcard2.css';
 import { getTimeAgo } from './utils/getTimeAgo';
 
-function ItemCard2({ id, imgSrc, brand, name, price, datetime }) {
+function ItemCard2({ id, imgSrc, d, brand, name, price, datetime }) {
   return (
     <li className="itemcard2">
       <Link to={`/products/${id}`}>
