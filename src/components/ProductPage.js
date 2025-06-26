@@ -9,26 +9,19 @@ import Slide from './Slide';
 import ItemCard2 from './ItemCard2';
 import dummyProducts from '../data/dummyProducts.json';
 
-/* ▸ 필터용 상수 (원본 그대로) */
-const CATEGORY = [
-  '여성의류', '남성의류', '가방', '신발',
-  '패션잡화', '키즈', '라이프', '전자기기', '반려동물', '기타',
-];
-const BRAND = [
-  'NoBrand','나이키','아디다스','자라','유니클로',
-  '폴로 랄프 로렌','타미힐피거','리바이스','삼성','애플','다이소',
-];
-const CONDITION = [
-  '새상품(미개봉)', '거의 새상품(상)',
-  '사용감 있는 깨끗한 상품(중)', '사용 흔적이 많이 있는 상품(하)'
-];
-const SALESTATE = ['판매중','판매완료'];
+const BASE_URL = 'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app';
+
+/* ▸ 필터용 상수 */
+const CATEGORY = [ '여성의류','남성의류','가방','신발','패션잡화','키즈','라이프','전자기기','반려동물','기타' ];
+const BRAND    = [ 'NoBrand','나이키','아디다스','자라','유니클로','폴로 랄프 로렌','타미힐피거','리바이스','삼성','애플','다이소' ];
+const CONDITION= [ '새상품(미개봉)','거의 새상품(상)','사용감 있는 깨끗한 상품(중)','사용 흔적이 많이 있는 상품(하)' ];
+const SALESTATE= [ '판매중','판매완료' ];
 
 function ProductPage() {
   const navigate = useNavigate();
   const { search } = useLocation();
 
-  /* ── 기존 상태 (필터/검색) ── */
+  // 필터/검색 상태
   const [openKey, setOpenKey]       = useState(null);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands]         = useState([]);
@@ -37,52 +30,48 @@ function ProductPage() {
   const [priceMin, setPriceMin]     = useState('');
   const [priceMax, setPriceMax]     = useState('');
 
-  /* ── 검색어 상태 ── */
+  // 검색어 상태
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm]   = useState('');
 
-  /* ── 입력 전 가격 상태 ── */
+  // 가격 입력 임시
   const [tempPriceMin, setTempPriceMin] = useState('');
   const [tempPriceMax, setTempPriceMax] = useState('');
 
-  /* ── DB 연동 상태 ── */
+  // 상품 리스트
   const [productItems, setProductItems] = useState([]);
 
-  /* ── 배열 토글 헬퍼 ── */
-  const toggleArray = (v, setter) =>
-    setter(prev => prev.includes(v) ? prev.filter(i => i !== v) : [...prev, v]);
+  // 배열 토글 유틸
+  const toggleArray = (v, setter) => setter(prev => prev.includes(v) ? prev.filter(i => i !== v) : [...prev, v]);
 
-  /* ── URL 파라미터(keyword) 처리 ── */
+  // URL 파라미터(keyword)
   useEffect(() => {
     const qp = new URLSearchParams(search);
     const kw = qp.get('keyword') || '';
-    if (kw) {
-      setSearchInput(kw);
-      setSearchTerm(kw);
-    }
+    setSearchInput(kw);
+    setSearchTerm(kw);
   }, [search]);
 
-  /* ── 마운트 시 전체 상품 불러오기 ── */
+  // 초기 데이터 로드: 더미 + API
   useEffect(() => {
-    axios.get('https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products')
+    axios.get(`${BASE_URL}/greenmarket/products`)
       .then(res => {
-        // 실 DB 상품
+        // DB 상품
         const apiItems = res.data.map(p => ({
           id:        p.id,
-          image:     p.images[0] || '',
+          imageUrl:  `${BASE_URL}/uploads/${p.images[0] || ''}`,
           brand:     p.brand,
           name:      p.title,
           price:     p.price,
           datetime:  p.datetime,
           category:  p.kind,
           condition: p.condition,
-          state:     p.status === 'available' ? '판매중' : '판매완료'
+          state:     '판매중'  // 필요시 p.status 처리
         }));
-
-         // 더미 상품: public/images 아래 파일을 절대 경로로 불러오도록 PUBLIC_URL을 붙여줍니다.
+        // 더미 상품 (public/images)
         const dummyItems = dummyProducts.map(d => ({
-          id:        d.id + 1000,                                         // 가짜 id
-          image:     `/images/${d.images[0]}`,
+          id:        d.id + 1000,         // 충돌 방지
+          imageUrl:  `${process.env.PUBLIC_URL}/images/${d.images[0]}`,
           brand:     d.brand,
           name:      d.title,
           price:     d.price,
@@ -91,60 +80,45 @@ function ProductPage() {
           condition: d.condition,
           state:     d.trade_type === '직거래' ? '판매중' : '판매완료'
         }));
-        // ── 여기까지 변경 ──
-
-        // 머지 (더미 먼저, 최신 등록 DB 상품이 상단)
         setProductItems([...dummyItems, ...apiItems]);
       })
       .catch(console.error);
   }, []);
-  
-  /* ── 검색창 onChange → 공백이면 검색어 초기화 ── */
+
+  // 검색창 변화
   const handleSearchChange = e => {
     const v = e.target.value;
     setSearchInput(v);
-    if (v.trim() === '') {
+    if (!v.trim()) {
       setSearchTerm('');
       navigate('/productpage');
     }
   };
 
-  /* ── 검색창 Enter → URL 히스토리 & searchTerm 세팅 ── */
   const handleSearchKey = e => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const v = e.target.value.trim();
       setSearchInput(v);
       setSearchTerm(v);
-      navigate(v
-        ? `/productpage?keyword=${encodeURIComponent(v)}`
-        : '/productpage'
-      );
+      navigate(v ? `/productpage?keyword=${encodeURIComponent(v)}` : '/productpage');
     }
   };
 
-  /* ── 필터 & 검색 적용 ── */
-  const filtered = useMemo(() => {
-   return productItems.filter(it => {
-     if (categories.length && !categories.includes(it.category)) return false;
-     if (brands.length     && !brands.includes(it.brand))       return false;
-     if (conditions.length && !conditions.includes(it.condition)) return false;
-     if (states.length     && !states.includes(it.state))       return false;
-     if (priceMin && it.price < +priceMin) return false;
-     if (priceMax && it.price > +priceMax) return false;
-
-     // ★ 여기부터 검색어 체크: title(name), brand, category 모두 검사
-     if (searchTerm) {
-       const kw = searchTerm.toLowerCase();
-       const inName = it.name.toLowerCase().includes(kw);
-       const inBrand = it.brand?.toLowerCase().includes(kw);
-       const inKind = it.category?.toLowerCase().includes(kw);
-       if (! (inName || inBrand || inKind) ) return false;
-     }
-
-     return true;
-   });
-  }, [productItems, categories, brands, conditions, states, priceMin, priceMax, searchTerm]);
+  // 필터 & 검색 적용
+  const filtered = useMemo(() => productItems.filter(it => {
+    if (categories.length && !categories.includes(it.category)) return false;
+    if (brands.length     && !brands.includes(it.brand))       return false;
+    if (conditions.length && !conditions.includes(it.condition)) return false;
+    if (states.length     && !states.includes(it.state))       return false;
+    if (priceMin && it.price < +priceMin) return false;
+    if (priceMax && it.price > +priceMax) return false;
+    if (searchTerm) {
+      const kw = searchTerm.toLowerCase();
+      if (![it.name, it.brand, it.category].some(f => f?.toLowerCase().includes(kw))) return false;
+    }
+    return true;
+  }), [productItems, categories, brands, conditions, states, priceMin, priceMax, searchTerm]);
 
   return (
     <>
