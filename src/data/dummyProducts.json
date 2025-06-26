@@ -1,0 +1,172 @@
+[
+  {
+    "id": 1,
+    "title": "새 옷 팝니다.",
+    "kind": "남성의류",
+    "brand": "아디다스",
+    "images": [
+      "/images/dummy-img-01_1.jpg",
+      "/images/dummy-img-01_2.jpg",
+      "/images/dummy-img-01_3.jpg"
+    ],
+    "price": 30234,
+    "trade_type": "직거래",
+    "condition": "새상품(미개봉)",
+    "region": "서울시",
+    "shipping_fee": 2000,
+    "description": "판매합니다"
+  },
+  {
+    "id": 2,
+    "title": "타미힐피거 남성 자켓",
+    "kind": "남성의류",
+    "brand": "타미힐피거",
+    "images": [
+      "/images/dummy-img-02_1.jpg",
+      "/images/dummy-img-02_2.jpg",
+      "/images/dummy-img-02_3.jpg"
+    ],
+    "price": 85000,
+    "trade_type": "택배거래",
+    "condition": "거의 새상품(상)",
+    "region": "서울시",
+    "shipping_fee": 3000,
+    "description": "깨끗한 중고 자켓입니다."
+  },
+  {
+    "id": 3,
+    "title": "빈티지 가방 팝니다",
+    "kind": "가방",
+    "brand": "NoBrand",
+    "images": [
+      "/images/dummy-img-03_1.jpg",
+      "/images/dummy-img-03_2.jpg",
+      "/images/dummy-img-03_3.jpg"
+    ],
+    "price": 15000,
+    "trade_type": "직거래",
+    "condition": "사용감 있는 깨끗한 상품(중)",
+    "region": "서울시",
+    "shipping_fee": 0,
+    "description": "빈티지 스타일 숄더백입니다."
+  },
+  {
+    "id": 4,
+    "title": "디지털 시계 팝니다",
+    "kind": "전자기기",
+    "brand": "NoBrand",
+    "images": [
+      "/images/dummy-img-04_1.jpg",
+      "/images/dummy-img-04_2.jpg",
+      "/images/dummy-img-04_3.jpg"
+    ],
+    "price": 50000,
+    "trade_type": "직거래",
+    "condition": "거의 새상품(상)",
+    "region": "서울시",
+    "shipping_fee": 2500,
+    "description": "심플한 디지털 시계입니다."
+  },
+  {
+    "id": 5,
+    "title": "구제 바지 팝니다",
+    "kind": "패션잡화",
+    "brand": "NoBrand",
+    "images": [
+      "/images/dummy-img-05_1.jpg",
+      "/images/dummy-img-05_2.jpg",
+      "/images/dummy-img-05_3.jpg"
+    ],
+    "price": 15000,
+    "trade_type": "택배거래",
+    "condition": "사용감 있는 깨끗한 상품(중)",
+    "region": "서울시",
+    "shipping_fee": 3000,
+    "description": "빈티지 구제 바지입니다."
+  },
+  {
+    "id": 6,
+    "title": "나이키 스니커즈 팝니다",
+    "kind": "신발",
+    "brand": "나이키",
+    "images": [
+      "/images/dummy-img-06_1.jpg",
+      "/images/dummy-img-06_2.jpg",
+      "/images/dummy-img-06_3.jpg"
+    ],
+    "price": 85000,
+    "trade_type": "직거래",
+    "condition": "거의 새상품(상)",
+    "region": "서울시",
+    "shipping_fee": 2000,
+    "description": "270mm 사이즈 스니커즈입니다."
+  },
+  {
+    "id": 7,
+    "title": "유니클로 여성 숏자켓",
+    "kind": "여성의류",
+    "brand": "유니클로",
+    "images": [
+      "/images/dummy-img-07_1.jpg",
+      "/images/dummy-img-07_2.jpg",
+      "/images/dummy-img-07_3.jpg"
+    ],
+    "price": 45000,
+    "trade_type": "택배거래",
+    "condition": "거의 새상품(상)",
+    "region": "서울시",
+    "shipping_fee": 2500,
+    "description": "유니클로 여성용 숏자켓입니다."
+  },
+  {
+    "id": 8,
+    "title": "24인치 모니터 팝니다",
+    "kind": "전자기기",
+    "brand": "NoBrand",
+    "images": [
+      "/images/dummy-img-08_1.jpg",
+      "/images/dummy-img-08_2.jpg",
+      "/images/dummy-img-08_3.jpg"
+    ],
+    "price": 120000,
+    "trade_type": "직거래",
+    "condition": "사용감 있는 깨끗한 상품(중)",
+    "region": "서울시",
+    "shipping_fee": 5000,
+    "description": "24인치 FHD 모니터입니다."
+  },
+  {
+    "id": 9,
+    "title": "자라 체크셔츠 새상품",
+    "kind": "남성의류",
+    "brand": "자라",
+    "images": [
+      "/images/dummy-img-09_1.jpg",
+      "/images/dummy-img-09_2.jpg",
+      "/images/dummy-img-09_3.jpg"
+    ],
+    "price": 30000,
+    "trade_type": "택배거래",
+    "condition": "새상품(미개봉)",
+    "region": "서울시",
+    "shipping_fee": 3000,
+    "description": "자라 남성용 체크셔츠 새제품입니다."
+  },
+  {
+    "id": 10,
+    "title": "전기 온돌 히터",
+    "kind": "라이프",
+    "brand": "NoBrand",
+    "images": [
+      "/images/dummy-img-10_1.jpg",
+      "/images/dummy-img-10_2.jpg",
+      "/images/dummy-img-10_3.jpg"
+    ],
+    "price": 250000,
+    "trade_type": "직거래",
+    "condition": "사용감 있는 깨끗한 상품(중)",
+    "region": "서울시",
+    "shipping_fee": 0,
+    "description": "전기 온돌 히터입니다."
+  }
+]
