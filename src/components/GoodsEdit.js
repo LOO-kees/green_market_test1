@@ -6,14 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 function GoodsEdit() {
-  const getThumbnailsPerPage = (width) => {
-    if (width >= 1024) return 6;
-    else if (width >= 768) return 6;
-    else return 3;
-  };
+  const getThumbnailsPerPage = width => (width >= 1024 ? 6 : width >= 768 ? 6 : 3);
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [thumbnailsPerPage, setThumbnailsPerPage] = useState(getThumbnailsPerPage(window.innerWidth));
   const [formData, setFormData] = useState({
     title: '',
@@ -32,20 +28,21 @@ function GoodsEdit() {
   const [imageFiles, setImageFiles] = useState({});
   const fileInputRefs = useRef([]);
   const [thumbStartIndex, setThumbStartIndex] = useState(0);
-  const handlePrev = () => {
-    setThumbStartIndex((prev) => Math.max(prev - 1, 0));
-  };
-  
-  const handleNext = () => {
-    setThumbStartIndex((prev) => Math.min(prev + 1, maxStartIndex));
-  };
   const maxStartIndex = Math.max(images.length - 1 - thumbnailsPerPage, 0);
+
+  useEffect(() => {
+    const onResize = () => setThumbnailsPerPage(getThumbnailsPerPage(window.innerWidth));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:9070/api/products/${id}`);
-        console.log("응답 데이터:", res.data);
-        const data = res.data; 
+        const res = await axios.get(
+          `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products/${id}`
+        );
+        const data = res.data;
 
         setFormData({
           title: data.title || '',
@@ -57,15 +54,17 @@ function GoodsEdit() {
           region: data.region || '',
           description: data.description || '',
           shipping_fee: data.shipping_fee || '',
-          image_main: data.imagemain || ''
+          image_main: data.image_main || ''
         });
 
-        setImages((prev) => {
+        setImages(prev => {
           const copy = [...prev];
-          if (data.image_main) copy[0] = `http://localhost:9070/uploads/${data.image_main}`;
+          if (data.image_main) {
+            copy[0] = `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/uploads/${data.image_main}`;
+          }
           for (let i = 1; i <= 6; i++) {
             if (data[`image_${i}`]) {
-              copy[i] = `http://localhost:9070/uploads/${data[`image_${i}`]}`;
+              copy[i] = `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/uploads/${data[`image_${i}`]}`;
             }
           }
           return copy;
@@ -76,36 +75,35 @@ function GoodsEdit() {
         navigate(-1);
       }
     };
-
     fetchProduct();
   }, [id, navigate]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const onThumbnailClick = (index) => {
-    fileInputRefs.current[index]?.click();
-  };
+  const onThumbnailClick = idx => fileInputRefs.current[idx]?.click();
 
-  const onFileChange = (e, index) => {
+  const onFileChange = (e, idx) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImages((prev) => {
+      setImages(prev => {
         const copy = [...prev];
-        copy[index] = reader.result;
+        copy[idx] = reader.result;
         return copy;
       });
     };
     reader.readAsDataURL(file);
-    setImageFiles((prev) => ({ ...prev, [index]: file }));
+    setImageFiles(prev => ({ ...prev, [idx]: file }));
   };
 
-  const handleSubmit = async (e) => {
+  const handlePrev = () => setThumbStartIndex(prev => Math.max(prev - 1, 0));
+  const handleNext = () => setThumbStartIndex(prev => Math.min(prev + 1, maxStartIndex));
+
+  const handleSubmit = async e => {
     e.preventDefault();
     const { title, kind, brand, price, trade_type, condition, region, description, shipping_fee } = formData;
 
@@ -113,7 +111,6 @@ function GoodsEdit() {
       alert('모든 항목을 입력해주세요.');
       return;
     }
-
     if (isNaN(price) || isNaN(shipping_fee)) {
       alert('가격과 배송비는 숫자로 입력해주세요.');
       return;
@@ -143,12 +140,16 @@ function GoodsEdit() {
     });
 
     try {
-      const res = await axios.post(`http://localhost:9070/api/products/edit/${id}`, fd, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await axios.post(
+        `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products/edit/${id}`,
+        fd,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (res.data.success) {
         alert('수정이 완료되었습니다.');
@@ -163,6 +164,7 @@ function GoodsEdit() {
   const handleCancel = () => {
     if (window.confirm('수정을 취소하시겠습니까?')) navigate(-1);
   };
+
 
   return (
     <div className="goods-insert-container">
