@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import * as jwtDecode from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -10,8 +11,8 @@ import 'swiper/css/pagination';
 import '../style/ItemDetail.css';
 import ItemCard2 from './ItemCard2';
 
-// CloudType backend path prefix
-const BASE_URL = 'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/green-market-test1';
+// ▶ 백엔드 루트 URL (greenmarket 경로는 뒤에서 붙입니다)
+const BASE_URL = 'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app';
 
 function ItemDetail() {
   const { id } = useParams();
@@ -25,13 +26,11 @@ function ItemDetail() {
   let loggedUserId = null;
   if (token) {
     try {
-      const decoded = jwtDecode(token);
-      loggedUserId = decoded.id;
+      loggedUserId = jwtDecode(token).id;
     } catch {}
   }
 
   useEffect(() => {
-    // fetch product detail
     axios
       .get(`${BASE_URL}/greenmarket/products/${id}`)
       .then(res => {
@@ -39,35 +38,30 @@ function ItemDetail() {
         setItem(product);
         const ownerId = product.owner_id;
 
-        // fetch other products by seller
-        axios
-          .get(
-            `${BASE_URL}/greenmarket/products?owner_id=${ownerId}&exclude_id=${id}`
-          )
-          .then(r2 => {
-            setSellerProducts(r2.data);
-
-            // fetch other products in same category
-            axios
-              .get(
-                `${BASE_URL}/greenmarket/products?category=${product.kind}&exclude_id=${id}`
-              )
-              .then(r3 => {
-                const filtered = r3.data.filter(
-                  p => !r2.data.some(sp => sp.id === p.id)
-                );
-                setCategoryProducts(filtered);
-              })
-              .catch(() => setCategoryProducts([]));
-          })
-          .catch(() => {
-            setSellerProducts([]);
-            setCategoryProducts([]);
-          });
+        // 판매자 다른 상품
+        return axios.get(
+          `${BASE_URL}/greenmarket/products?owner_id=${ownerId}&exclude_id=${id}`
+        );
+      })
+      .then(r2 => {
+        setSellerProducts(r2.data);
+        // 같은 카테고리 다른 상품
+        return axios.get(
+          `${BASE_URL}/greenmarket/products?category=${item.kind}&exclude_id=${id}`
+        ).then(r3 => {
+          const filtered = r3.data.filter(p => !r2.data.some(sp => sp.id === p.id));
+          setCategoryProducts(filtered);
+        });
       })
       .catch(err => {
-        console.error('상품 데이터를 불러오는 데 실패했습니다.', err);
-        setItem(null);
+        console.error(err);
+        if (!item) {
+          // 최초 fetch 실패 시
+          return setItem(null);
+        }
+        // 이후 fetch 실패해도 다른 상품만 비웁니다
+        setSellerProducts(prev => prev);
+        setCategoryProducts([]);
       });
   }, [id]);
 
@@ -75,12 +69,8 @@ function ItemDetail() {
 
   const imageList = [
     item.image_main,
-    item.image_1,
-    item.image_2,
-    item.image_3,
-    item.image_4,
-    item.image_5,
-    item.image_6
+    item.image_1, item.image_2, item.image_3,
+    item.image_4, item.image_5, item.image_6
   ].filter(Boolean);
 
   const handleDelete = () => {
@@ -91,10 +81,9 @@ function ItemDetail() {
       return;
     }
     axios
-      .delete(
-        `${BASE_URL}/greenmarket/products/${item.id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      .delete(`${BASE_URL}/greenmarket/products/${item.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
       .then(() => {
         alert('상품이 삭제되었습니다.');
         navigate('/productpage');
@@ -143,6 +132,7 @@ function ItemDetail() {
             </div>
           </div>
         </div>
+
         <div className="item_info">
           <p className="item_name">{item.title}</p>
           <p className="price">{item.price.toLocaleString()}원</p>
@@ -157,20 +147,15 @@ function ItemDetail() {
             </li>
             <li>거래방식: {item.trade_type}</li>
           </ul>
+
           <div className="item_btns_wrap">
             <ul className="item_btns">
-              <li>
-                <button className="btn_question">1:1문의</button>
-              </li>
+              <li><button className="btn_question">1:1문의</button></li>
               <li>
                 <button
                   className="btn_cart"
                   onClick={() => {
-                    if (!token) {
-                      alert('로그인이 필요합니다.');
-                      navigate('/login');
-                      return;
-                    }
+                    if (!token) { alert('로그인이 필요합니다.'); navigate('/login'); return; }
                     axios
                       .post(
                         `${BASE_URL}/greenmarket/cart`,
@@ -197,9 +182,13 @@ function ItemDetail() {
               </li>
             </ul>
           </div>
+
           {loggedUserId === item.owner_id && (
             <div className="item_manage_buttons">
-              <button onClick={() => navigate(`/goodsedit/${item.id}`)} style={{ marginRight: '10px' }}>
+              <button
+                onClick={() => navigate(`/goodsedit/${item.id}`)}
+                style={{ marginRight: '10px' }}
+              >
                 수정
               </button>
               <button onClick={handleDelete}>삭제</button>
@@ -207,40 +196,47 @@ function ItemDetail() {
           )}
         </div>
       </div>
+
       <div className="item_textbox">
         <span className="description">상세설명</span>
         {item.description || '상세 설명이 없습니다.'}
       </div>
+
       <div className="seller_products_section">
         <h3>{item.seller_name}님의 다른 상품</h3>
-        <ul className='product_list_grid'>
-          {sellerProducts.length > 0 ? sellerProducts.map(p => (
-            <ItemCard2
-              key={p.id}
-              id={p.id}
-              imgSrc={`${BASE_URL}/uploads/${p.images[0]}`}
-              brand={p.brand}
-              name={p.title}
-              price={`${p.price.toLocaleString()}원`}
-              datetime={p.datetime}
-            />
-          )) : <p>다른 상품이 없습니다.</p>}
+        <ul className="product_list_grid">
+          {sellerProducts.length > 0
+            ? sellerProducts.map(p => (
+                <ItemCard2
+                  key={p.id}
+                  id={p.id}
+                  imgSrc={`${BASE_URL}/uploads/${p.images[0]}`}
+                  brand={p.brand}
+                  name={p.title}
+                  price={`${p.price.toLocaleString()}원`}
+                  datetime={p.datetime}
+                />
+              ))
+            : <p>다른 상품이 없습니다.</p>}
         </ul>
       </div>
+
       <div className="category_products_section">
         <h3>카테고리가 같은 다른 상품</h3>
-        <ul className='product_list_grid'>
-          {categoryProducts.length > 0 ? categoryProducts.map(p => (
-            <ItemCard2
-              key={p.id}
-              id={p.id}
-              imgSrc={`${BASE_URL}/uploads/${p.images[0]}`}
-              brand={p.brand}
-              name={p.title}
-              price={`${p.price.toLocaleString()}원`}
-              datetime={p.datetime}
-            />
-          )) : <p>다른 상품이 없습니다.</p>}
+        <ul className="product_list_grid">
+          {categoryProducts.length > 0
+            ? categoryProducts.map(p => (
+                <ItemCard2
+                  key={p.id}
+                  id={p.id}
+                  imgSrc={`${BASE_URL}/uploads/${p.images[0]}`}
+                  brand={p.brand}
+                  name={p.title}
+                  price={`${p.price.toLocaleString()}원`}
+                  datetime={p.datetime}
+                />
+              ))
+            : <p>다른 상품이 없습니다.</p>}
         </ul>
       </div>
     </>
