@@ -270,7 +270,6 @@ export default function ProductPage() {
         </div>
 
         {/* ── 내가 등록한 상품 (DB) ── */}
-        <h3>내가 등록한 상품</h3>
         <ul className="productpage_items_list">
           {filteredApi.length > 0 ? (
             filteredApi.map(it => (
@@ -285,12 +284,10 @@ export default function ProductPage() {
               />
             ))
           ) : (
-            <li>등록된 상품이 없습니다.</li>
           )}
         </ul>
 
         {/* ── 더미 상품 ── */}
-        <h3>더미 상품</h3>
         <ul className="productpage_items_list">
           {filteredDummy.length > 0 ? (
             filteredDummy.map(it => (
@@ -305,7 +302,6 @@ export default function ProductPage() {
               />
             ))
           ) : (
-            <li>해당 조건의 더미 상품이 없습니다.</li>
           )}
         </ul>
       </div>
