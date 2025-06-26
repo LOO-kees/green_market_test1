@@ -8,7 +8,7 @@ function ItemCard2({ id, imgSrc, brand, name, price, datetime }) {
     <li className="itemcard2">
       <Link to={`/products/${id}`}>
         <div className="itemcard2-image-wrapper">
-          <img src={ `${process.env.PUBLIC_URL}${d.images[0]}` alt={name} className="item" />
+          <img src={`${process.env.PUBLIC_URL}${d.images[0]}`} alt={name} className="item" />
         </div>
         <span className="brand2">{brand}</span>
         <p className="item_name">{name}</p>
