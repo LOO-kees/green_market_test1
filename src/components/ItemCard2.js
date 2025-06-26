@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../style/itemcard2.css';
-import { getTimeAgo } from '../utils/getTimeAgo';
+import { getTimeAgo } from './utils/getTimeAgo';
 
 function ItemCard2({ id, imgSrc, brand, name, price, datetime }) {
   return (
