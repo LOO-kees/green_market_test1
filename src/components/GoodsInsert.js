@@ -115,15 +115,16 @@ function GoodsInsert() {
     }
   
     const fd = new FormData();
-    fd.append('title', title);
-    fd.append('brand', brand);
-    fd.append('kind', kind);         
-    fd.append('price', price);
-    fd.append('tradeType', tradeType);
-    fd.append('condition', condition);
-    fd.append('region', region);
-    fd.append('description', description);
-    fd.append('shipping_fee', shipping_fee);
+    fd.append('title', formData.title);
+    fd.append('brand', formData.brand);
+    fd.append('kind', formData.kind);
+    fd.append('price', formData.price);
+    // **서버가 기대하는 필드 이름과 정확히 맞춰주세요**
+    fd.append('trade_type', formData.tradeType);
+    fd.append('condition', formData.condition);
+    fd.append('region', formData.region);
+    fd.append('description', formData.description);
+    fd.append('shipping_fee', formData.shipping_fee);
   
     Object.entries(imageFiles).forEach(([idx, file]) => {
       const field = idx === '0' ? 'image_main' : `image_${idx}`;
