@@ -7,6 +7,7 @@ import { faChevronDown, faChevronUp, faSearch } from '@fortawesome/free-solid-sv
 import '../style/productpage.css';
 import Slide from './Slide';
 import ItemCard2 from './ItemCard2';
+import dummyProducts from '../data/dummyProducts.json';
 
 /* ▸ 필터용 상수 (원본 그대로) */
 const CATEGORY = [
@@ -65,22 +66,36 @@ function ProductPage() {
   useEffect(() => {
     axios.get('https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products')
       .then(res => {
-        const items = res.data.map(p => ({
+        // 실 DB 상품
+        const apiItems = res.data.map(p => ({
           id:        p.id,
           image:     p.images[0] || '',
           brand:     p.brand,
           name:      p.title,
           price:     p.price,
-          time:      new Date(p.datetime).toLocaleString(),
+          datetime:  p.datetime,
           category:  p.kind,
           condition: p.condition,
           state:     p.status === 'available' ? '판매중' : '판매완료'
         }));
-        setProductItems(items);
+        // 더미 상품
+        const dummyItems = dummyProducts.map(d => ({
+          id:        d.id + 1000,
+          image:     d.images[0],
+          brand:     d.brand,
+          name:      d.title,
+          price:     d.price,
+          datetime:  new Date().toISOString(),
+          category:  d.kind,
+          condition: d.condition,
+          state:     d.trade_type === '직거래' ? '판매중' : '판매완료'
+        }));
+        // 머지 (더미 먼저, 최신 등록 DB 상품이 상단)
+        setProductItems([...dummyItems, ...apiItems]);
       })
       .catch(console.error);
   }, []);
-
+  
   /* ── 검색창 onChange → 공백이면 검색어 초기화 ── */
   const handleSearchChange = e => {
     const v = e.target.value;
