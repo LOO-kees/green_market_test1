@@ -5,9 +5,9 @@
     "kind": "남성의류",
     "brand": "아디다스",
     "images": [
-      "/images/dummy-img-01_1.jpg",
-      "/images/dummy-img-01_2.jpg",
-      "/images/dummy-img-01_3.jpg"
+      "dummy-img-01_1.jpg",
+      "dummy-img-01_2.jpg",
+      "dummy-img-01_3.jpg"
     ],
     "price": 30234,
     "trade_type": "직거래",
@@ -22,9 +22,9 @@
     "kind": "남성의류",
     "brand": "타미힐피거",
     "images": [
-      "/images/dummy-img-02_1.jpg",
-      "/images/dummy-img-02_2.jpg",
-      "/images/dummy-img-02_3.jpg"
+      "dummy-img-02_1.jpg",
+      "dummy-img-02_2.jpg",
+      "dummy-img-02_3.jpg"
     ],
     "price": 85000,
     "trade_type": "택배거래",
@@ -39,9 +39,9 @@
     "kind": "가방",
     "brand": "NoBrand",
     "images": [
-      "/images/dummy-img-03_1.jpg",
-      "/images/dummy-img-03_2.jpg",
-      "/images/dummy-img-03_3.jpg"
+      "dummy-img-03_1.jpg",
+      "dummy-img-03_2.jpg",
+      "dummy-img-03_3.jpg"
     ],
     "price": 15000,
     "trade_type": "직거래",
@@ -56,9 +56,9 @@
     "kind": "전자기기",
     "brand": "NoBrand",
     "images": [
-      "/images/dummy-img-04_1.jpg",
-      "/images/dummy-img-04_2.jpg",
-      "/images/dummy-img-04_3.jpg"
+      "dummy-img-04_1.jpg",
+      "dummy-img-04_2.jpg",
+      "dummy-img-04_3.jpg"
     ],
     "price": 50000,
     "trade_type": "직거래",
@@ -73,9 +73,9 @@
     "kind": "패션잡화",
     "brand": "NoBrand",
     "images": [
-      "/images/dummy-img-05_1.jpg",
-      "/images/dummy-img-05_2.jpg",
-      "/images/dummy-img-05_3.jpg"
+      "dummy-img-05_1.jpg",
+      "dummy-img-05_2.jpg",
+      "dummy-img-05_3.jpg"
     ],
     "price": 15000,
     "trade_type": "택배거래",
@@ -90,9 +90,9 @@
     "kind": "신발",
     "brand": "나이키",
     "images": [
-      "/images/dummy-img-06_1.jpg",
-      "/images/dummy-img-06_2.jpg",
-      "/images/dummy-img-06_3.jpg"
+      "dummy-img-06_1.jpg",
+      "dummy-img-06_2.jpg",
+      "dummy-img-06_3.jpg"
     ],
     "price": 85000,
     "trade_type": "직거래",
@@ -107,9 +107,9 @@
     "kind": "여성의류",
     "brand": "유니클로",
     "images": [
-      "/images/dummy-img-07_1.jpg",
-      "/images/dummy-img-07_2.jpg",
-      "/images/dummy-img-07_3.jpg"
+      "dummy-img-07_1.jpg",
+      "dummy-img-07_2.jpg",
+      "dummy-img-07_3.jpg"
     ],
     "price": 45000,
     "trade_type": "택배거래",
@@ -124,9 +124,9 @@
     "kind": "전자기기",
     "brand": "NoBrand",
     "images": [
-      "/images/dummy-img-08_1.jpg",
-      "/images/dummy-img-08_2.jpg",
-      "/images/dummy-img-08_3.jpg"
+      "dummy-img-08_1.jpg",
+      "dummy-img-08_2.jpg",
+      "/dummy-img-08_3.jpg"
     ],
     "price": 120000,
     "trade_type": "직거래",
@@ -141,9 +141,9 @@
     "kind": "남성의류",
     "brand": "자라",
     "images": [
-      "/images/dummy-img-09_1.jpg",
-      "/images/dummy-img-09_2.jpg",
-      "/images/dummy-img-09_3.jpg"
+      "dummy-img-09_1.jpg",
+      "dummy-img-09_2.jpg",
+      "dummy-img-09_3.jpg"
     ],
     "price": 30000,
     "trade_type": "택배거래",
@@ -158,9 +158,9 @@
     "kind": "라이프",
     "brand": "NoBrand",
     "images": [
-      "/images/dummy-img-10_1.jpg",
-      "/images/dummy-img-10_2.jpg",
-      "/images/dummy-img-10_3.jpg"
+      "dummy-img-10_1.jpg",
+      "dummy-img-10_2.jpg",
+      "dummy-img-10_3.jpg"
     ],
     "price": 250000,
     "trade_type": "직거래",
