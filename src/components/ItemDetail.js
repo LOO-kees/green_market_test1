@@ -1,10 +1,13 @@
+// components/ItemDetail.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css'; import 'swiper/css/navigation'; import 'swiper/css/pagination';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import '../style/ItemDetail.css';
 import ItemCard2 from './ItemCard2';
 
@@ -13,6 +16,7 @@ const BASE_URL = 'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app';
 function ItemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [item, setItem] = useState(null);
   const [sellerProducts, setSellerProducts] = useState([]);
   const [categoryProducts, setCategoryProducts] = useState([]);
@@ -27,14 +31,13 @@ function ItemDetail() {
   }
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/greenmarket/products/${id}`)         // ← /greenmarket/products
+    axios.get(`${BASE_URL}/greenmarket/products/${id}`)
       .then(res => {
-        const product = res.data;
-        setItem(product);
-        const ownerId = product.owner_id;
+        setItem(res.data);
+        const ownerId = res.data.owner_id;
         return Promise.all([
           axios.get(`${BASE_URL}/greenmarket/products?owner_id=${ownerId}&exclude_id=${id}`),
-          axios.get(`${BASE_URL}/greenmarket/products?category=${product.kind}&exclude_id=${id}`)
+          axios.get(`${BASE_URL}/greenmarket/products?category=${res.data.kind}&exclude_id=${id}`)
         ]);
       })
       .then(([r2, r3]) => {
@@ -62,7 +65,7 @@ function ItemDetail() {
       return;
     }
     axios.delete(
-      `${BASE_URL}/greenmarket/products/${item.id}`,           // ← /greenmarket/products
+      `${BASE_URL}/greenmarket/products/${item.id}`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
     .then(() => {
@@ -71,7 +74,7 @@ function ItemDetail() {
     })
     .catch(() => alert('삭제 중 오류가 발생했습니다.'));
   };
-  
+
   return (
     <>
       <div className="item_detail_wrap">
@@ -90,7 +93,7 @@ function ItemDetail() {
                 <SwiperSlide key={i}>
                   <img
                     src={`${BASE_URL}/uploads/${img}`}
-                    alt={`상품 이미지 ${i + 1}`}
+                    alt={`상품 이미지 ${i+1}`}
                     className="item_detail_img"
                   />
                 </SwiperSlide>
@@ -121,7 +124,7 @@ function ItemDetail() {
           <ul className="item_status">
             <li>상품상태: {item.condition}</li>
             <li>
-              배송비:{' '}
+              배송비:&nbsp;
               {item.shipping_fee === 0
                 ? '무료'
                 : `${item.shipping_fee.toLocaleString()}원`}
@@ -137,39 +140,33 @@ function ItemDetail() {
                   className="btn_cart"
                   onClick={() => {
                     if (!token) { alert('로그인이 필요합니다.'); navigate('/login'); return; }
-                    axios
-                      .post(
-                        `${BASE_URL}/greenmarket/cart`,
-                        { product_id: item.id },
-                        { headers: { Authorization: `Bearer ${token}` } }
-                      )
-                      .then(() => alert('장바구니에 추가되었습니다.'))
-                      .catch(error => {
-                        const status = error.response?.status;
-                        const msg = error.response?.data?.error || '오류가 발생했습니다.';
-                        if (status === 400) alert(msg);
-                        else if (status === 401) alert('로그인이 필요합니다.');
-                        else alert(msg);
-                      });
+                    axios.post(
+                      `${BASE_URL}/greenmarket/cart`,
+                      { product_id: item.id },
+                      { headers: { Authorization: `Bearer ${token}` } }
+                    )
+                    .then(() => alert('장바구니에 추가되었습니다.'))
+                    .catch(err => {
+                      const status = err.response?.status;
+                      const msg = err.response?.data?.error || '오류가 발생했습니다.';
+                      if (status === 400) alert(msg);
+                      else if (status === 401) alert('로그인이 필요합니다.');
+                      else alert(msg);
+                    });
                   }}
                 >
                   장바구니 추가
                 </button>
               </li>
               <li>
-                <Link to="/cart">
-                  <button className="btn_buy">구매</button>
-                </Link>
+                <Link to="/cart"><button className="btn_buy">구매</button></Link>
               </li>
             </ul>
           </div>
 
           {loggedUserId === item.owner_id && (
             <div className="item_manage_buttons">
-              <button
-                onClick={() => navigate(`/goodsedit/${item.id}`)}
-                style={{ marginRight: '10px' }}
-              >
+              <button onClick={() => navigate(`/goodsedit/${item.id}`)} style={{ marginRight: 10 }}>
                 수정
               </button>
               <button onClick={handleDelete}>삭제</button>
@@ -186,7 +183,7 @@ function ItemDetail() {
       <div className="seller_products_section">
         <h3>{item.seller_name}님의 다른 상품</h3>
         <ul className="product_list_grid">
-          {sellerProducts.length > 0
+          {sellerProducts.length
             ? sellerProducts.map(p => (
                 <ItemCard2
                   key={p.id}
@@ -198,14 +195,15 @@ function ItemDetail() {
                   datetime={p.datetime}
                 />
               ))
-            : <p>다른 상품이 없습니다.</p>}
+            : <p>다른 상품이 없습니다.</p>
+          }
         </ul>
       </div>
 
       <div className="category_products_section">
         <h3>카테고리가 같은 다른 상품</h3>
         <ul className="product_list_grid">
-          {categoryProducts.length > 0
+          {categoryProducts.length
             ? categoryProducts.map(p => (
                 <ItemCard2
                   key={p.id}
@@ -217,7 +215,8 @@ function ItemDetail() {
                   datetime={p.datetime}
                 />
               ))
-            : <p>다른 상품이 없습니다.</p>}
+            : <p>다른 상품이 없습니다.</p>
+          }
         </ul>
       </div>
     </>
