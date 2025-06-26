@@ -29,22 +29,19 @@ export default function ProductPage() {
   const [states, setStates]         = useState([]);
   const [priceMin, setPriceMin]     = useState('');
   const [priceMax, setPriceMax]     = useState('');
-
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm]   = useState('');
-
   const [tempPriceMin, setTempPriceMin] = useState('');
   const [tempPriceMax, setTempPriceMax] = useState('');
 
   // ── 상품 데이터 ──
-  const [apiItems, setApiItems]     = useState([]); // DB에서 가져온 상품
-  const [dummyItems, setDummyItems] = useState([]); // 더미 데이터
+  const [apiItems, setApiItems]     = useState([]);
+  const [dummyItems, setDummyItems] = useState([]);
 
-  // 배열 토글 헬퍼
   const toggleArray = (v, setter) =>
     setter(prev => prev.includes(v) ? prev.filter(i => i !== v) : [...prev, v]);
 
-  // URL 파라미터(keyword) 세팅
+  // URL에서 keyword 파싱
   useEffect(() => {
     const qp = new URLSearchParams(search);
     const kw = qp.get('keyword') || '';
@@ -52,12 +49,11 @@ export default function ProductPage() {
     setSearchTerm(kw);
   }, [search]);
 
-  // 초기 데이터 로드
+  // 데이터 로드: API + 더미
   useEffect(() => {
-    // 1) DB 상품
     axios.get(`${BASE_URL}/greenmarket/products`)
       .then(res => {
-        const items = res.data.map(p => ({
+        setApiItems(res.data.map(p => ({
           id:        p.id,
           imageUrl:  `${BASE_URL}/uploads/${p.images[0] || ''}`,
           brand:     p.brand,
@@ -67,13 +63,11 @@ export default function ProductPage() {
           category:  p.kind,
           condition: p.condition,
           state:     '판매중'
-        }));
-        setApiItems(items);
+        })));
       })
       .catch(console.error);
 
-    // 2) 더미 상품 (public/images 안)
-    const dummies = dummyProducts.map(d => ({
+    setDummyItems(dummyProducts.map(d => ({
       id:        d.id + 1000,
       imageUrl:  `${process.env.PUBLIC_URL}/images/${d.images[0]}`,
       brand:     d.brand,
@@ -83,8 +77,7 @@ export default function ProductPage() {
       category:  d.kind,
       condition: d.condition,
       state:     d.trade_type === '직거래' ? '판매중' : '판매완료'
-    }));
-    setDummyItems(dummies);
+    })));
   }, []);
 
   // 검색창 핸들러
@@ -106,8 +99,8 @@ export default function ProductPage() {
     }
   };
 
-  // 공통 필터 함수
-  const applyFilter = (list) => list.filter(it => {
+  // 공통 필터 로직
+  const applyFilter = list => list.filter(it => {
     if (categories.length && !categories.includes(it.category)) return false;
     if (brands.length     && !brands.includes(it.brand))       return false;
     if (conditions.length && !conditions.includes(it.condition)) return false;
@@ -116,12 +109,11 @@ export default function ProductPage() {
     if (priceMax && it.price > +priceMax) return false;
     if (searchTerm) {
       const kw = searchTerm.toLowerCase();
-      if (![it.name, it.brand, it.category].some(f=>f?.toLowerCase().includes(kw))) return false;
+      if (![it.name, it.brand, it.category].some(f => f?.toLowerCase().includes(kw))) return false;
     }
     return true;
   });
 
-  // 분리된 필터 결과
   const filteredApi   = useMemo(() => applyFilter(apiItems),   [apiItems,   categories, brands, conditions, states, priceMin, priceMax, searchTerm]);
   const filteredDummy = useMemo(() => applyFilter(dummyItems), [dummyItems, categories, brands, conditions, states, priceMin, priceMax, searchTerm]);
 
@@ -130,7 +122,7 @@ export default function ProductPage() {
       <Slide />
 
       <div className="productpage_wrap">
-        {/* ─── 상단 탭 ─── */}
+        {/* 탭 */}
         <ul className="productpage_tab-list">
           {['category','brand','price','etc'].map((key, idx) => {
             const titles = ['카테고리','브랜드','가격','기타'];
@@ -153,7 +145,7 @@ export default function ProductPage() {
           })}
         </ul>
 
-        {/* ── 패널: 카테고리 ── */}
+        {/* 패널: 카테고리 */}
         {openKey==='category' && (
           <div className="productpage_panel">
             <ul className="productpage_grid">
@@ -168,7 +160,7 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* ── 패널: 브랜드 ── */}
+        {/* 패널: 브랜드 */}
         {openKey==='brand' && (
           <div className="productpage_panel">
             <ul className="productpage_grid">
@@ -183,7 +175,7 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* ── 패널: 가격 ── */}
+        {/* 패널: 가격 */}
         {openKey==='price' && (
           <div className="productpage_panel productpage_price">
             <div className="price-inputs">
@@ -203,7 +195,7 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* ── 패널: 기타 ── */}
+        {/* 패널: 기타 */}
         {openKey==='etc' && (
           <div className="productpage_panel productpage_panel--etc">
             <div className="etc_group">
@@ -232,7 +224,7 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* ── 선택된 필터 표시 & 초기화 ── */}
+        {/* 필터 토큰 & 초기화 */}
         {(categories.length||brands.length||conditions.length||states.length||priceMin||priceMax) && (
           <div className="productpage_filter-bar">
             <button onClick={()=>{
@@ -258,7 +250,7 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* ── 검색창 ── */}
+        {/* 검색창 */}
         <div className="productpage_search" style={{marginTop:30}}>
           <FontAwesomeIcon icon={faSearch}/>
           <input
@@ -269,40 +261,34 @@ export default function ProductPage() {
           />
         </div>
 
-        {/* ── 내가 등록한 상품 (DB) ── */}
+        {/* 내가 등록한 상품 (DB) */}
         <ul className="productpage_items_list">
-          {filteredApi.length > 0 ? (
-            filteredApi.map(it => (
-              <ItemCard2
-                key={it.id}
-                id={it.id}
-                imgSrc={it.imageUrl}
-                brand={it.brand}
-                name={it.name}
-                price={`${it.price.toLocaleString()}원`}
-                time={it.datetime}
-              />
-            ))
-          ) : (
-          )}
+          {filteredApi.map(it=>(
+            <ItemCard2
+              key={it.id}
+              id={it.id}
+              imgSrc={it.imageUrl}
+              brand={it.brand}
+              name={it.name}
+              price={`${it.price.toLocaleString()}원`}
+              time={it.datetime}
+            />
+          ))}
         </ul>
 
-        {/* ── 더미 상품 ── */}
+        {/* 더미 상품 */}
         <ul className="productpage_items_list">
-          {filteredDummy.length > 0 ? (
-            filteredDummy.map(it => (
-              <ItemCard2
-                key={it.id}
-                id={it.id}
-                imgSrc={it.imageUrl}
-                brand={it.brand}
-                name={it.name}
-                price={`${it.price.toLocaleString()}원`}
-                time={it.datetime}
-              />
-            ))
-          ) : (
-          )}
+          {filteredDummy.map(it=>(
+            <ItemCard2
+              key={it.id}
+              id={it.id}
+              imgSrc={it.imageUrl}
+              brand={it.brand}
+              name={it.name}
+              price={`${it.price.toLocaleString()}원`}
+              time={it.datetime}
+            />
+          ))}
         </ul>
       </div>
     </>
