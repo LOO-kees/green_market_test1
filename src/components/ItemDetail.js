@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { default as jwtDecode } from 'jwt-decode';
-
+import jwtDecode from 'jwt-decode';                    // ← 이렇게 가져오기
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
+import 'swiper/css'; import 'swiper/css/navigation'; import 'swiper/css/pagination';
 import '../style/ItemDetail.css';
 import ItemCard2 from './ItemCard2';
 
-// ▶ 백엔드 루트 URL (greenmarket 경로는 뒤에서 붙입니다)
 const BASE_URL = 'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app';
 
 function ItemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [item, setItem] = useState(null);
   const [sellerProducts, setSellerProducts] = useState([]);
   const [categoryProducts, setCategoryProducts] = useState([]);
@@ -26,51 +21,37 @@ function ItemDetail() {
   let loggedUserId = null;
   if (token) {
     try {
-      loggedUserId = jwtDecode(token).id;
+      const decoded = jwtDecode(token);
+      loggedUserId = decoded.id;
     } catch {}
   }
 
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/greenmarket/products/${id}`)
+    axios.get(`${BASE_URL}/greenmarket/products/${id}`)         // ← /greenmarket/products
       .then(res => {
         const product = res.data;
         setItem(product);
         const ownerId = product.owner_id;
-
-        // 판매자 다른 상품
-        return axios.get(
-          `${BASE_URL}/greenmarket/products?owner_id=${ownerId}&exclude_id=${id}`
-        );
+        return Promise.all([
+          axios.get(`${BASE_URL}/greenmarket/products?owner_id=${ownerId}&exclude_id=${id}`),
+          axios.get(`${BASE_URL}/greenmarket/products?category=${product.kind}&exclude_id=${id}`)
+        ]);
       })
-      .then(r2 => {
+      .then(([r2, r3]) => {
         setSellerProducts(r2.data);
-        // 같은 카테고리 다른 상품
-        return axios.get(
-          `${BASE_URL}/greenmarket/products?category=${item.kind}&exclude_id=${id}`
-        ).then(r3 => {
-          const filtered = r3.data.filter(p => !r2.data.some(sp => sp.id === p.id));
-          setCategoryProducts(filtered);
-        });
+        setCategoryProducts(r3.data.filter(p => !r2.data.some(sp => sp.id === p.id)));
       })
       .catch(err => {
         console.error(err);
-        if (!item) {
-          // 최초 fetch 실패 시
-          return setItem(null);
-        }
-        // 이후 fetch 실패해도 다른 상품만 비웁니다
-        setSellerProducts(prev => prev);
-        setCategoryProducts([]);
+        setItem(null);
       });
   }, [id]);
 
   if (!item) return <div>상품을 찾을 수 없습니다.</div>;
 
   const imageList = [
-    item.image_main,
-    item.image_1, item.image_2, item.image_3,
-    item.image_4, item.image_5, item.image_6
+    item.image_main, item.image_1, item.image_2,
+    item.image_3, item.image_4, item.image_5, item.image_6
   ].filter(Boolean);
 
   const handleDelete = () => {
@@ -80,17 +61,17 @@ function ItemDetail() {
       navigate('/login');
       return;
     }
-    axios
-      .delete(`${BASE_URL}/greenmarket/products/${item.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(() => {
-        alert('상품이 삭제되었습니다.');
-        navigate('/productpage');
-      })
-      .catch(() => alert('삭제 중 오류가 발생했습니다.'));
+    axios.delete(
+      `${BASE_URL}/greenmarket/products/${item.id}`,           // ← /greenmarket/products
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(() => {
+      alert('상품이 삭제되었습니다.');
+      navigate('/productpage');
+    })
+    .catch(() => alert('삭제 중 오류가 발생했습니다.'));
   };
-
+  
   return (
     <>
       <div className="item_detail_wrap">
