@@ -82,7 +82,7 @@ function ProductPage() {
          // 더미 상품: public/images 아래 파일을 절대 경로로 불러오도록 PUBLIC_URL을 붙여줍니다.
         const dummyItems = dummyProducts.map(d => ({
           id:        d.id + 1000,                                         // 가짜 id
-          image:     `${process.env.PUBLIC_URL}${d.images[0]}`,           // <- 절대 경로
+          image:     `/images/${d.images[0]}`,
           brand:     d.brand,
           name:      d.title,
           price:     d.price,
