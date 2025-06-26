@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import '../style/itemcard2.css';
 import { getTimeAgo } from './utils/getTimeAgo';
 
-function ItemCard2({ id, imgSrc, d, brand, name, price, datetime }) {
+function ItemCard2({ id, imgSrc, brand, name, price, datetime }) {
   return (
     <li className="itemcard2">
       <Link to={`/products/${id}`}>
         <div className="itemcard2-image-wrapper">
-          <img src={`${process.env.PUBLIC_URL}${d.images[0]}`} alt={name} className="item" />
+          <img src={imgSrc} alt={name} className="item" />
         </div>
         <span className="brand2">{brand}</span>
         <p className="item_name">{name}</p>
