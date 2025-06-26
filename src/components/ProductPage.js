@@ -78,10 +78,11 @@ function ProductPage() {
           condition: p.condition,
           state:     p.status === 'available' ? '판매중' : '판매완료'
         }));
-        // 더미 상품
+
+         // 더미 상품: public/images 아래 파일을 절대 경로로 불러오도록 PUBLIC_URL을 붙여줍니다.
         const dummyItems = dummyProducts.map(d => ({
-          id:        d.id + 1000,
-          image:     d.images[0],
+          id:        d.id + 1000,                                         // 가짜 id
+          image:     `${process.env.PUBLIC_URL}${d.images[0]}`,           // <- 절대 경로
           brand:     d.brand,
           name:      d.title,
           price:     d.price,
@@ -90,6 +91,8 @@ function ProductPage() {
           condition: d.condition,
           state:     d.trade_type === '직거래' ? '판매중' : '판매완료'
         }));
+        // ── 여기까지 변경 ──
+
         // 머지 (더미 먼저, 최신 등록 DB 상품이 상단)
         setProductItems([...dummyItems, ...apiItems]);
       })
