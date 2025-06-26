@@ -7,7 +7,7 @@ import { faChevronDown, faChevronUp, faSearch } from '@fortawesome/free-solid-sv
 import '../style/productpage.css';
 import Slide from './Slide';
 import ItemCard2 from './ItemCard2';
-import dummyProducts from '../data/dummyProducts.json';
+import d from '../data/dummyProducts.json';
 
 /* ▸ 필터용 상수 (원본 그대로) */
 const CATEGORY = [
