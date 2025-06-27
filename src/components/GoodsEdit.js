@@ -10,7 +10,15 @@ function GoodsEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // 썸네일 개수
   const [thumbnailsPerPage, setThumbnailsPerPage] = useState(getThumbnailsPerPage(window.innerWidth));
+  useEffect(() => {
+    const onResize = () => setThumbnailsPerPage(getThumbnailsPerPage(window.innerWidth));
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // 폼 데이터
   const [formData, setFormData] = useState({
     title: '',
     kind: '',
@@ -20,22 +28,15 @@ function GoodsEdit() {
     condition: '',
     region: '',
     description: '',
-    shipping_fee: '',
-    image_main: ''
+    shipping_fee: ''
   });
 
+  // 이미지 미리보기 및 파일 저장
   const [images, setImages] = useState(Array(7).fill(''));
   const [imageFiles, setImageFiles] = useState({});
   const fileInputRefs = useRef([]);
-  const [thumbStartIndex, setThumbStartIndex] = useState(0);
-  const maxStartIndex = Math.max(images.length - 1 - thumbnailsPerPage, 0);
 
-  useEffect(() => {
-    const onResize = () => setThumbnailsPerPage(getThumbnailsPerPage(window.innerWidth));
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
+  // 상품 정보 불러오기
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -43,20 +44,17 @@ function GoodsEdit() {
           `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products/${id}`
         );
         const data = res.data;
-
         setFormData({
-          title: data.title || '',
-          kind: data.kind || '',
-          brand: data.brand || '',
-          price: data.price || '',
-          trade_type: data.trade_type || '',
-          condition: data.condition || '',
-          region: data.region || '',
-          description: data.description || '',
-          shipping_fee: data.shipping_fee || '',
-          image_main: data.image_main || ''
+          title: data.title,
+          kind: data.kind,
+          brand: data.brand,
+          price: data.price,
+          trade_type: data.trade_type,
+          condition: data.condition,
+          region: data.region,
+          description: data.description,
+          shipping_fee: data.shipping_fee || ''
         });
-
         setImages(prev => {
           const copy = [...prev];
           if (data.image_main) {
@@ -78,35 +76,41 @@ function GoodsEdit() {
     fetchProduct();
   }, [id, navigate]);
 
+  // 폼 필드 변경 핸들러
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const onThumbnailClick = idx => fileInputRefs.current[idx]?.click();
+  // 썸네일 클릭
+  const onThumbnailClick = i => fileInputRefs.current[i]?.click();
 
-  const onFileChange = (e, idx) => {
+  // 파일 선택
+  const onFileChange = (e, i) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
       setImages(prev => {
         const copy = [...prev];
-        copy[idx] = reader.result;
+        copy[i] = reader.result;
         return copy;
       });
     };
     reader.readAsDataURL(file);
-    setImageFiles(prev => ({ ...prev, [idx]: file }));
+    setImageFiles(prev => ({ ...prev, [i]: file }));
   };
 
-  const handlePrev = () => setThumbStartIndex(prev => Math.max(prev - 1, 0));
-  const handleNext = () => setThumbStartIndex(prev => Math.min(prev + 1, maxStartIndex));
+  // 썸네일 네비게이션
+  const maxStartIndex = Math.max(images.length - 1 - thumbnailsPerPage, 0);
+  const [thumbStartIndex, setThumbStartIndex] = useState(0);
+  const handlePrev = () => setThumbStartIndex(p => Math.max(p - 1, 0));
+  const handleNext = () => setThumbStartIndex(p => Math.min(p + 1, maxStartIndex));
 
+  // 제출 핸들러
   const handleSubmit = async e => {
     e.preventDefault();
     const { title, kind, brand, price, trade_type, condition, region, description, shipping_fee } = formData;
-
     if (!title || !kind || !brand || !price || !trade_type || !condition || !region || !description || !shipping_fee) {
       alert('모든 항목을 입력해주세요.');
       return;
@@ -116,13 +120,15 @@ function GoodsEdit() {
       return;
     }
 
-    const token = localStorage.getItem('token');
-    if (!token) {
+    // 토큰 꺼내기 및 따옴표 제거
+    const raw = localStorage.getItem('token');
+    if (!raw) {
       alert('로그인이 필요합니다.');
-      navigate('/login');
-      return;
+      return navigate('/login');
     }
+    const token = raw.replace(/^"|"$/g, '');
 
+    // FormData 구성
     const fd = new FormData();
     fd.append('title', title);
     fd.append('brand', brand);
@@ -133,7 +139,6 @@ function GoodsEdit() {
     fd.append('region', region);
     fd.append('description', description);
     fd.append('shipping_fee', shipping_fee);
-
     Object.entries(imageFiles).forEach(([idx, file]) => {
       const field = idx === '0' ? 'image_main' : `image_${idx}`;
       fd.append(field, file);
@@ -145,22 +150,22 @@ function GoodsEdit() {
         fd,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}` // Content-Type 생략 (boundary 자동 설정)
           }
         }
       );
-
       if (res.data.success) {
         alert('수정이 완료되었습니다.');
         navigate(-1);
       }
     } catch (err) {
       console.error('수정 중 오류:', err.response?.data || err.message);
-      alert('상품 수정에 실패했습니다.');
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message;
+      alert(`상품 수정 실패: ${msg}`);
     }
   };
 
+  // 취소 핸들러
   const handleCancel = () => {
     if (window.confirm('수정을 취소하시겠습니까?')) navigate(-1);
   };
