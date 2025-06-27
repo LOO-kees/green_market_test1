@@ -57,13 +57,9 @@ function GoodsEdit() {
         });
         setImages(prev => {
           const copy = [...prev];
-          if (data.image_main) {
-            copy[0] = `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/uploads/${data.image_main}`;
-          }
+          if (data.image_main) copy[0] = data.image_mainUrl;
           for (let i = 1; i <= 6; i++) {
-            if (data[`image_${i}`]) {
-              copy[i] = `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/uploads/${data[`image_${i}`]}`;
-            }
+            if (data[`image_${i}`]) copy[i] = data[`image_${i}Url`];
           }
           return copy;
         });
@@ -76,16 +72,13 @@ function GoodsEdit() {
     fetchProduct();
   }, [id, navigate]);
 
-  // 폼 필드 변경 핸들러
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 썸네일 클릭
   const onThumbnailClick = i => fileInputRefs.current[i]?.click();
 
-  // 파일 선택
   const onFileChange = (e, i) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -101,13 +94,11 @@ function GoodsEdit() {
     setImageFiles(prev => ({ ...prev, [i]: file }));
   };
 
-  // 썸네일 네비게이션
   const maxStartIndex = Math.max(images.length - 1 - thumbnailsPerPage, 0);
   const [thumbStartIndex, setThumbStartIndex] = useState(0);
   const handlePrev = () => setThumbStartIndex(p => Math.max(p - 1, 0));
   const handleNext = () => setThumbStartIndex(p => Math.min(p + 1, maxStartIndex));
 
-  // 제출 핸들러
   const handleSubmit = async e => {
     e.preventDefault();
     const { title, kind, brand, price, trade_type, condition, region, description, shipping_fee } = formData;
@@ -120,7 +111,6 @@ function GoodsEdit() {
       return;
     }
 
-    // 토큰 꺼내기 및 따옴표 제거
     const raw = localStorage.getItem('token');
     if (!raw) {
       alert('로그인이 필요합니다.');
@@ -128,14 +118,13 @@ function GoodsEdit() {
     }
     const token = raw.replace(/^"|"$/g, '');
 
-    // FormData 구성
     const fd = new FormData();
     fd.append('title', title);
     fd.append('brand', brand);
     fd.append('kind', kind);
+    fd.append('condition', condition);
     fd.append('price', price);
     fd.append('trade_type', trade_type);
-    fd.append('condition', condition);
     fd.append('region', region);
     fd.append('description', description);
     fd.append('shipping_fee', shipping_fee);
@@ -148,11 +137,7 @@ function GoodsEdit() {
       const res = await axios.post(
         `https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products/edit/${id}`,
         fd,
-        {
-          headers: {
-            Authorization: `Bearer ${token}` // Content-Type 생략 (boundary 자동 설정)
-          }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data.success) {
         alert('수정이 완료되었습니다.');
@@ -165,52 +150,50 @@ function GoodsEdit() {
     }
   };
 
-  // 취소 핸들러
   const handleCancel = () => {
     if (window.confirm('수정을 취소하시겠습니까?')) navigate(-1);
   };
 
-
   return (
     <div className="goods-insert-container">
       <h2>상품 수정</h2>
-       <form className="goods-insert-form" onSubmit={handleSubmit}>
-              {/* 제목 */}
-              <p>
-                <label htmlFor="title">제목</label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  placeholder="안 쓰는 물건 팔아요"
-                  required
-                  value={formData.title}
-                  onChange={handleChange}
-                />
-              </p>
-      
-              {/* 카테고리 */}
-              <p>
-                <label htmlFor="kind">카테고리</label>
-                <select
-                  name="kind"
-                  id="kind"
-                  required
-                  value={formData.kind}
-                  onChange={handleChange}
-                >
-                  <option value="">제품선택</option>
-                  <option value="여성의류">여성의류</option>
-                  <option value="남성의류">남성의류</option>
-                  <option value="가방">가방</option>
-                  <option value="신발">신발</option>
-                  <option value="패션잡화">패션잡화</option>
-                  <option value="키즈">키즈</option>
-                  <option value="라이프">라이프</option>
-                  <option value="전자기기">전자기기</option>
-                  <option value="기타">기타</option>
-                </select>
-              </p>
+      <form className="goods-insert-form" onSubmit={handleSubmit}>
+        <p>
+          <label htmlFor="title">제목</label>
+          <input type="text" id="title" name="title" value={formData.title} onChange={handleChange} required />
+        </p>
+        <p>
+          <label htmlFor="kind">카테고리</label>
+          <select id="kind" name="kind" value={formData.kind} onChange={handleChange} required>
+            <option value="">제품선택</option>
+            <option value="여성의류">여성의류</option>
+            <option value="남성의류">남성의류</option>
+            <option value="가방">가방</option>
+            <option value="신발">신발</option>
+            <option value="패션잡화">패션잡화</option>
+            <option value="키즈">키즈</option>
+            <option value="라이프">라이프</option>
+            <option value="전자기기">전자기기</option>
+            <option value="기타">기타</option>
+          </select>
+        </p>
+        <p>
+          <label htmlFor="brand">브랜드선택</label>
+          <select id="brand" name="brand" value={formData.brand} onChange={handleChange} required>
+            <option value="">선택</option>
+            <option value="NoBrand">NoBrand</option>
+            <option value="나이키">나이키</option>
+            <option value="아디다스">아디다스</option>
+            <option value="자라">자라</option>
+            <option value="유니클로">유니클로</option>
+            <option value="폴로 랄프 로렌">폴로 랄프 로렌</option>
+            <option value="타미힐피거">타미힐피거</option>
+            <option value="리바이스">리바이스</option>
+            <option value="삼성">삼성</option>
+            <option value="애플">애플</option>
+            <option value="다이소">다이소</option>
+          </select>
+        </p>
       
               {/* 브랜드 */}
               <p>
