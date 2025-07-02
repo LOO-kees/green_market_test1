@@ -6,130 +6,144 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
+// import Region from './Region.js';
+
 function GoodsInsert() {
   const navigate = useNavigate();
 
   // 로그인 체크: 토큰이 없으면 로그인 페이지로 리다이렉트
   useEffect(() => {
-    const raw = localStorage.getItem('token');
-    if (!raw) {
+    const token = localStorage.getItem('token');
+    if (!token) {
       alert('로그인이 필요한 서비스입니다.');
       navigate('/login');
     }
   }, [navigate]);
 
-  // 폼 상태 관리
+  //폼 상태 관리
   const [formData, setFormData] = useState({
     title: '',
     kind: '',
     brand: '',
     price: '',
-    tradeType: '',
+    trade_type: '',
     condition: '',
     region: '',
     description: '',
-    shipping_fee: ''
+    shipping_fee: ''  // 추가
   });
 
-  // 이미지 미리보기 & 파일 저장
+  // DataURL 미리보기
   const [images, setImages] = useState(Array(7).fill(''));
+  // 실제 File 객체 저장
   const [imageFiles, setImageFiles] = useState({});
+  const [thumbStartIndex, setThumbStartIndex] = useState(0);
   const fileInputRefs = useRef([]);
 
-  // 썸네일 슬라이드
-  const [thumbStartIndex, setThumbStartIndex] = useState(0);
-  const getThumbnailsPerPage = (w) => (w >= 1024 ? 6 : w >= 768 ? 6 : 3);
+  function getThumbnailsPerPage(width) {
+    if (width >= 1024) return 6;
+    else if (width >= 768) return 6;
+    else return 3;
+  }
   const [thumbnailsPerPage, setThumbnailsPerPage] = useState(getThumbnailsPerPage(window.innerWidth));
   useEffect(() => {
-    const onResize = () => setThumbnailsPerPage(getThumbnailsPerPage(window.innerWidth));
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
+    const handleResize = () => setThumbnailsPerPage(getThumbnailsPerPage(window.innerWidth));
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   const thumbnailCount = images.length - 1;
   const maxStartIndex = Math.max(thumbnailCount - thumbnailsPerPage, 0);
   useEffect(() => {
-    setThumbStartIndex((prev) => Math.min(prev, maxStartIndex));
+    setThumbStartIndex(prev => Math.min(prev, maxStartIndex));
   }, [thumbnailsPerPage, maxStartIndex]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const onThumbnailClick = (i) => fileInputRefs.current[i]?.click();
+  const onThumbnailClick = (index) => {
+    fileInputRefs.current[index]?.click();
+  };
 
-  const onFileChange = (e, i) => {
+  const onFileChange = (e, index) => {
     const file = e.target.files[0];
     if (!file) return;
+    // 1) DataURL
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImages((prev) => {
+      setImages(prev => {
         const copy = [...prev];
-        copy[i] = reader.result;
+        copy[index] = reader.result;
         return copy;
       });
     };
     reader.readAsDataURL(file);
-    setImageFiles((prev) => ({ ...prev, [i]: file }));
+    // 2) File 객체
+    setImageFiles(prev => ({ ...prev, [index]: file }));
   };
 
-  const handlePrev = () => setThumbStartIndex((p) => Math.max(p - 1, 0));
-  const handleNext = () => setThumbStartIndex((p) => Math.min(p + 1, maxStartIndex));
+  const handlePrev = () => {
+    setThumbStartIndex(prev => Math.max(prev - 1, 0));
+  };
+  const handleNext = () => {
+    setThumbStartIndex(prev => Math.min(prev + 1, maxStartIndex));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { title, kind, brand, price, tradeType, condition, region, description, shipping_fee } = formData;
-    // 필수 입력 검증
-    if (!title || !kind || !brand || !price || !tradeType || !condition || !region || !description || !shipping_fee) {
+    const { title, kind, brand, price, trade_type, condition, region, description, shipping_fee } = formData;
+  
+    if (!title || !kind || !brand || !price || !trade_type || !condition || !region || !description || !shipping_fee) {
       alert('모든 항목을 입력해주세요.');
       return;
     }
-    if (isNaN(price) || isNaN(shipping_fee)) {
-      alert('가격과 배송비는 숫자로 입력해주세요.');
+    if (isNaN(price)) {
+      alert('가격은 숫자로 입력해주세요.');
       return;
     }
-
-    // 토큰 꺼내기 & 따옴표 제거
-    const raw = localStorage.getItem('token');
-    if (!raw) {
+    if (isNaN(shipping_fee)) {
+      alert('배송비는 숫자로 입력해주세요.');
+      return;
+    }
+  
+    const token = localStorage.getItem('token');  // 로그인 때 저장한 토큰을 꺼냄
+    if (!token) {
       alert('로그인이 필요합니다.');
-      navigate('/login');
+      navigate('/login');  // 로그인 페이지로 이동시키기
       return;
     }
-    const token = raw.replace(/^"|"$/g, '');
-
-    // FormData 구성
+  
     const fd = new FormData();
     fd.append('title', title);
     fd.append('brand', brand);
-    fd.append('kind', kind);
+    fd.append('kind', kind);         
     fd.append('price', price);
-    fd.append('trade_type', tradeType);
+    fd.append('trade_type', trade_type);
     fd.append('condition', condition);
     fd.append('region', region);
     fd.append('description', description);
     fd.append('shipping_fee', shipping_fee);
+  
     Object.entries(imageFiles).forEach(([idx, file]) => {
       const field = idx === '0' ? 'image_main' : `image_${idx}`;
       fd.append(field, file);
     });
-
+  
     try {
-      await axios.post(
-        'https://port-0-backend-mbioc25168a38ca1.sel4.cloudtype.app/greenmarket/products',
-        fd,
-        {
-          headers: {
-            Authorization: `Bearer ${token}` // Content-Type은 생략 (axios가 boundary 자동 설정)
-          }
-        }
-      );
+      // const res = await axios.post('https://port-0-backend-mbiobig1cd0dc4c0.sel4.cloudtype.app/products', fd, {
+      await axios.post('https://port-0-backend-mbiobig1cd0dc4c0.sel4.cloudtype.app/products', fd, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,  // 여기 토큰을 꼭 넣어주세요
+        },
+      });
       alert('상품이 정상적으로 등록되었습니다!');
+      // console.log('상품 등록 성공:', res.data);
       navigate('/productpage');
     } catch (err) {
-      console.error('상품 등록 오류:', err.response?.data || err);
-      const msg = err.response?.data?.message || err.response?.data?.error || err.message;
-      alert(`등록 실패: ${msg}`);
+      console.error('Axios Error:', err.response?.data || err.message);
+      alert(`등록 실패: ${err.response?.data?.error || err.message}`);
     }
   };
 
@@ -149,16 +163,22 @@ function GoodsInsert() {
             id="title"
             name="title"
             placeholder="안 쓰는 물건 팔아요"
+            required
             value={formData.title}
             onChange={handleChange}
-            required
           />
         </p>
 
         {/* 카테고리 */}
         <p>
           <label htmlFor="kind">카테고리</label>
-          <select id="kind" name="kind" value={formData.kind} onChange={handleChange} required>
+          <select
+            name="kind"
+            id="kind"
+            required
+            value={formData.kind}
+            onChange={handleChange}
+          >
             <option value="">제품선택</option>
             <option value="여성의류">여성의류</option>
             <option value="남성의류">남성의류</option>
@@ -175,7 +195,13 @@ function GoodsInsert() {
         {/* 브랜드 */}
         <p>
           <label htmlFor="brand">브랜드선택</label>
-          <select id="brand" name="brand" value={formData.brand} onChange={handleChange} required>
+          <select
+            name="brand"
+            id="brand"
+            required
+            value={formData.brand}
+            onChange={handleChange}
+          >
             <option value="">선택</option>
             <option value="NoBrand">NoBrand</option>
             <option value="나이키">나이키</option>
@@ -191,26 +217,29 @@ function GoodsInsert() {
           </select>
         </p>
 
-        {/* 사진 업로드 */}
-        <label>사진</label>
+        {/* 사진 */}
+        <label htmlFor="image">사진</label>
         <div className="photo-section">
-          <div className="main-photo" onClick={() => onThumbnailClick(0)}>
-            {images[0] ? (
-              <img src={images[0]} alt="상품 메인 이미지" />
-            ) : (
-              <FontAwesomeIcon icon={faCamera} size="3x" />
-            )}
+          {/* 메인 사진 */}
+          <div className="main-photo" onClick={() => onThumbnailClick(0)} style={{ cursor: 'pointer' }}>
+            {images[0]
+              ? <img src={images[0]} alt="상품 이미지" />
+              : <FontAwesomeIcon icon={faCamera} style={{ fontSize: '48px', color: '#555' }} />
+            }
             <input
               type="file"
               accept="image/*"
               style={{ display: 'none' }}
-              ref={(el) => (fileInputRefs.current[0] = el)}
-              onChange={(e) => onFileChange(e, 0)}
+              ref={el => (fileInputRefs.current[0] = el)}
+              onChange={e => onFileChange(e, 0)}
             />
           </div>
+
+          {/* 썸네일 슬라이드 */}
           <div className="thumbnails-wrapper">
-            <button type="button" onClick={handlePrev} disabled={thumbStartIndex === 0}>
-              <FontAwesomeIcon icon={faChevronLeft} size="2x" />
+            <button type="button" className="thumb-nav prev"
+              onClick={handlePrev} disabled={thumbStartIndex === 0}>
+              <FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: '50px' }} />
             </button>
             <div className="thumbnails">
               {images.slice(1)
@@ -218,29 +247,41 @@ function GoodsInsert() {
                 .map((src, idx) => {
                   const actual = thumbStartIndex + idx + 1;
                   return (
-                    <div
-                      key={actual}
-                      className="thumbnail-wrapper"
-                      onClick={() => onThumbnailClick(actual)}
-                    >
-                      {src ? (
-                        <img src={src} alt={`미리보기 ${actual}`} />
-                      ) : (
-                        <FontAwesomeIcon icon={faCamera} size="2x" />
-                      )}
+                    <div key={actual} className="thumbnail-wrapper"
+                      onClick={() => onThumbnailClick(actual)} style={{
+                        cursor: 'pointer',
+                        position: 'relative',
+                        width: '80px',
+                        height: '80px',
+                        backgroundColor: '#f0f0f0',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        textAlign: 'center',
+                      }}>
+                      {src
+                        ? <img src={src} alt={`사진 ${actual}`} className="thumbnail-preview" style={{
+                            width: '100%', height: '100%', objectFit: 'cover'
+                          }} />
+                        : <FontAwesomeIcon icon={faCamera} style={{
+                            fontSize: '32px', color: '#555',
+                            position: 'absolute', top: '50%', left: '50%',
+                            transform: 'translate(-50%, -50%)'
+                          }} />
+                      }
                       <input
                         type="file"
                         accept="image/*"
                         style={{ display: 'none' }}
-                        ref={(el) => (fileInputRefs.current[actual] = el)}
-                        onChange={(e) => onFileChange(e, actual)}
+                        ref={el => (fileInputRefs.current[actual] = el)}
+                        onChange={e => onFileChange(e, actual)}
                       />
                     </div>
                   );
                 })}
             </div>
-            <button type="button" onClick={handleNext} disabled={thumbStartIndex >= maxStartIndex}>
-              <FontAwesomeIcon icon={faChevronRight} size="2x" />
+            <button type="button" className="thumb-nav next"
+              onClick={handleNext} disabled={thumbStartIndex >= maxStartIndex}>
+              <FontAwesomeIcon icon={faChevronRight} style={{ fontSize: '50px' }} />
             </button>
           </div>
         </div>
@@ -252,21 +293,21 @@ function GoodsInsert() {
             type="text"
             id="price"
             name="price"
+            required
             value={formData.price}
             onChange={handleChange}
-            required
           />
         </p>
 
-        {/* 거래 방식 */}
+        {/* 거래방식 */}
         <p>
-          <label htmlFor="tradeType">거래 방식</label>
+          <label htmlFor="trade_type">거래 방식</label>
           <select
-            id="tradeType"
-            name="tradeType"
-            value={formData.tradeType}
-            onChange={handleChange}
+            name="trade_type"
+            id="trade_type"
             required
+            value={formData.trade_type}
+            onChange={handleChange}
           >
             <option value="">-- 선택 --</option>
             <option value="직거래">직거래</option>
@@ -278,11 +319,11 @@ function GoodsInsert() {
         <p>
           <label htmlFor="condition">제품 상태</label>
           <select
-            id="condition"
             name="condition"
+            id="condition"
+            required
             value={formData.condition}
             onChange={handleChange}
-            required
           >
             <option value="">상태 선택</option>
             <option value="새상품(미개봉)">새상품(미개봉)</option>
@@ -300,13 +341,13 @@ function GoodsInsert() {
             id="region"
             name="region"
             placeholder="서울시 종로구 구기동"
+            required
             value={formData.region}
             onChange={handleChange}
-            required
           />
+          {/* <Region /> */}
         </p>
 
-        {/* 배송비 */}
         <p>
           <label htmlFor="shipping_fee">배송비</label>
           <input
@@ -314,9 +355,9 @@ function GoodsInsert() {
             id="shipping_fee"
             name="shipping_fee"
             placeholder="2000(원)"
+            required
             value={formData.shipping_fee}
             onChange={handleChange}
-            required
           />
         </p>
 
@@ -327,20 +368,16 @@ function GoodsInsert() {
             id="description"
             name="description"
             rows={5}
+            required
             value={formData.description}
             onChange={handleChange}
-            required
           />
         </p>
 
         {/* 버튼 */}
         <div className="button-group">
-          <button type="submit" className="submit-btn">
-            등록하기
-          </button>
-          <button type="button" className="cancel-btn" onClick={handleCancel}>
-            취소
-          </button>
+          <button type="submit" className="submit-btn">등록하기</button>
+          <button type="button" className="cancel-btn" onClick={handleCancel}>취소</button>
         </div>
       </form>
     </div>
